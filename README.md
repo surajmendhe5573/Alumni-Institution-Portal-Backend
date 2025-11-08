@@ -1,2 +1,2 @@
-# Alumni & Institution Portal
+## Alumni & Institution Portal
 Dashboard Alumni & Institution Portal
