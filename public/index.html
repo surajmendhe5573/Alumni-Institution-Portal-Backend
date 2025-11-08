@@ -1,0 +1,159 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor-Mentee Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+    #chat-container {
+      width: 400px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      height: 300px;
+      margin-bottom: 10px;
+    }
+    .msg {
+      padding: 5px 8px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+    }
+    .sent {
+      background: #dcf8c6;
+      align-self: flex-end;
+    }
+    .received {
+      background: #f1f0f0;
+      align-self: flex-start;
+    }
+    #message-form {
+      display: flex;
+      gap: 5px;
+    }
+    #message-input {
+      flex: 1;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>💬 Mentor-Mentee Chat</h2>
+  <div id="chat-container">
+    <div>
+      <input id="senderId" placeholder="Sender ID" />
+      <input id="receiverId" placeholder="Receiver ID" />
+      <button id="joinRoom">Join Room</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <form id="message-form">
+      <input id="message-input" placeholder="Type a message..." />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor-Mentee Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+    #chat-container {
+      width: 400px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      height: 300px;
+      margin-bottom: 10px;
+    }
+    .msg {
+      padding: 5px 8px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .sent {
+      background: #dcf8c6;
+      align-self: flex-end;
+    }
+    .received {
+      background: #f1f0f0;
+      align-self: flex-start;
+    }
+    #message-form {
+      display: flex;
+      gap: 5px;
+    }
+    #message-input {
+      flex: 1;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>💬 Mentor-Mentee Chat</h2>
+  <div id="chat-container">
+    <div>
+      <input id="senderId" placeholder="Sender ID" />
+      <input id="receiverId" placeholder="Receiver ID" />
+      <button id="joinRoom">Join Room</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <form id="message-form">
+      <input id="message-input" placeholder="Type a message..." />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- ✅ Load from backend instead of CDN -->
+  <script src="http://localhost:7000/socket.io/socket.io.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

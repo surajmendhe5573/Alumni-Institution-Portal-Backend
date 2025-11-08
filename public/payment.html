@@ -1,0 +1,406 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scholarship Fund 2025</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+  <body
+    style="font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f8f9fa;"
+  >
+    <h2>🎓 Scholarship Fund 2025</h2>
+
+    <input
+      type="number"
+      id="amount"
+      placeholder="Enter amount (in INR)"
+      style="padding: 10px; width: 250px;"
+    />
+    <br /><br />
+    <button
+      id="payBtn"
+      style="padding: 10px 20px; font-size: 16px; background-color: #007bff; border: none; color: white; border-radius: 5px; cursor: pointer;"
+    >
+      Pay Now
+    </button>
+
+    <script>
+      document.getElementById("payBtn").onclick = async function () {
+        const amount = document.getElementById("amount").value;
+        if (!amount || amount <= 0) return alert("Please enter a valid amount");
+
+        try {
+          const response = await fetch("/api/v1/donations1/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fundName: "Scholarship Fund 2025",
+              donorName: "Suraj Mendhe",
+              amount,
+              donationType: "one-time",
+            }),
+          });
+
+          const data = await response.json();
+          console.log("Order Created Response:", data);
+
+          if (!data.success) {
+            alert("Failed to create order: " + data.message);
+            return;
+          }
+
+          const order = data.data.data;
+          if (!order?.orderId) {
+            alert("Invalid order response");
+            return;
+          }
+
+          const options = {
+            key: order.key,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Scholarship Fund 2025",
+            description: "Donation for education support",
+            order_id: order.orderId,
+            handler: async function (response) {
+              console.log("Payment Response:", response);
+              const verifyRes = await fetch("/api/v1/donations1/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              console.log("Verification Response:", verifyData);
+              alert(verifyData.message);
+            },
+            prefill: {
+              name: "Suraj Mendhe",
+              email: "suraj@example.com",
+              contact: "9876543210",
+            },
+            theme: { color: "#3399cc" },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.on("payment.failed", (res) => {
+            alert("Payment failed: " + res.error.description);
+            console.error(res.error);
+          });
+          rzp.open();
+        } catch (err) {
+          console.error("Error during payment:", err);
+          alert("Something went wrong. Please try again.");
+        }
+      };
+    </script>
+  </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm Your Donation</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .fund-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .fund-header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #00c851 60%, #ff4444 100%);
+      margin-bottom: 25px;
+    }
+
+    .toggle-btns {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .toggle-btn {
+      border: none;
+      background: #e9f5ff;
+      color: #007bff;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 30px;
+      margin: 0 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-btn.active {
+      background: #007bff;
+      color: #fff;
+    }
+
+    .amount-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .amount-btn {
+      flex: 1 1 45%;
+      border: 2px solid #007bff;
+      color: #007bff;
+      border-radius: 30px;
+      padding: 10px 0;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .amount-btn:hover,
+    .amount-btn.selected {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    .custom-input {
+      margin-bottom: 25px;
+    }
+
+    .custom-input input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .custom-input input:focus {
+      border-color: #007bff;
+    }
+
+    button#donateBtn {
+      width: 100%;
+      background: #001f4d;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 0;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button#donateBtn:hover {
+      background: #003180;
+    }
+
+    .note {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Confirm Your Donation</h1>
+
+    <div class="fund-header">
+      <img src="https://images.wallpapersden.com/image/download/starry-landscape-4k-cool-blue-moon_bW5tbG6UmZqaraWkpJRobWllrWdma2U.jpg" alt="Fund Logo" />
+      <div>
+        <h2 style="margin:0; font-size:18px;">Scholarship Fund 2025</h2>
+      </div>
+    </div>
+
+    <div class="progress-bar"></div>
+
+    <h3 style="font-size:16px; color:#333; margin-bottom:15px;">Choose Donation Type</h3>
+    <div class="toggle-btns">
+      <button id="oneTimeBtn" class="toggle-btn active">One-Time Donation</button>
+      <button id="recurringBtn" class="toggle-btn">Recurring Donation</button>
+    </div>
+
+    <div class="amount-options">
+      <div class="amount-btn" data-value="500">₹500</div>
+      <div class="amount-btn" data-value="1000">₹1000</div>
+      <div class="amount-btn" data-value="2000">₹2000</div>
+      <div class="amount-btn" data-value="5000">₹5000</div>
+    </div>
+
+    <div class="custom-input">
+      <input type="number" id="customAmount" placeholder="Custom Donation Amount (₹)" />
+    </div>
+
+    <button id="donateBtn">Proceed to Payments</button>
+
+    <div class="note">💙 Every contribution helps us make a difference. Thank you for your support!</div>
+  </div>
+
+  <script>
+    let donationType = "one-time";
+    let selectedAmount = 0;
+
+    const oneTimeBtn = document.getElementById("oneTimeBtn");
+    const recurringBtn = document.getElementById("recurringBtn");
+    const amountBtns = document.querySelectorAll(".amount-btn");
+    const customAmountInput = document.getElementById("customAmount");
+
+    // Toggle donation type
+    oneTimeBtn.onclick = () => {
+      donationType = "one-time";
+      oneTimeBtn.classList.add("active");
+      recurringBtn.classList.remove("active");
+      updateAmountLabels();
+    };
+
+    recurringBtn.onclick = () => {
+      donationType = "recurring";
+      recurringBtn.classList.add("active");
+      oneTimeBtn.classList.remove("active");
+      updateAmountLabels();
+    };
+
+    // Update amount labels based on donation type
+    function updateAmountLabels() {
+      amountBtns.forEach((btn) => {
+        const value = btn.dataset.value;
+        btn.textContent =
+          donationType === "recurring" ? `₹${value}/Month` : `₹${value}`;
+      });
+    }
+
+    // Select amount
+    amountBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        amountBtns.forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedAmount = parseInt(btn.dataset.value);
+        customAmountInput.value = "";
+      });
+    });
+
+    // Custom amount input
+    customAmountInput.addEventListener("input", () => {
+      amountBtns.forEach((b) => b.classList.remove("selected"));
+      selectedAmount = parseInt(customAmountInput.value || 0);
+    });
+
+    // Proceed to payment
+    document.getElementById("donateBtn").onclick = async function () {
+      if (!selectedAmount || selectedAmount <= 0) {
+        alert("⚠️ Please select or enter a valid amount!");
+        return;
+      }
+
+      const fundName = "Scholarship Fund 2025";
+      const donorName = "Suraj Mendhe";
+      const amount = selectedAmount;
+
+      try {
+        // 🧾 Step 1: Create order
+        const response = await fetch("/api/v1/donations1/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fundName, donorName, amount, donationType }),
+        });
+
+        const data = await response.json();
+        console.log("Order Created:", data);
+
+        if (!data.success || !data.data.data?.orderId) {
+          alert("❌ Failed to create order: " + data.message);
+          return;
+        }
+
+        const order = data.data.data;
+
+        // 💳 Step 2: Razorpay Checkout
+        const options = {
+          key: order.key,
+          amount: order.amount,
+          currency: order.currency,
+          name: "Donation Portal",
+          description: `Donation for ${fundName} (${donationType})`,
+          order_id: order.orderId,
+          handler: async function (response) {
+            console.log("Payment Response:", response);
+            const verifyRes = await fetch("/api/v1/donations1/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response),
+            });
+            const verifyData = await verifyRes.json();
+            alert(verifyData.message || "🎉 Payment verified successfully!");
+          },
+          prefill: { name: donorName },
+          theme: { color: "#007bff" },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", (res) => {
+          alert("❌ Payment failed: " + res.error.description);
+          console.error(res.error);
+        });
+        rzp.open();
+      } catch (err) {
+        console.error("Error during payment:", err);
+        alert("Something went wrong. Please try again later.");
+      }
+    };
+  </script>
+</body>
+</html>
