@@ -1,7 +1,6 @@
 import { CHAT_MODEL } from "./chat.model.js";
 
 class ChatService {
-  // Save a new chat message
   async saveMessage(sender, receiver, message) {
     const chat = new CHAT_MODEL({ sender, receiver, message });
     return chat.save();
@@ -25,6 +24,14 @@ async markMessagesAsRead(sender, receiver) {
   );
   return { success: true };
 }
+
+async getUnreadMessages(sender, receiver) {
+    return CHAT_MODEL.find({
+      sender,
+      receiver,
+      read: false
+    }).sort({ timestamp: 1 });
+  }
 
 }
 
