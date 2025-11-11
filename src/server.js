@@ -60,13 +60,54 @@ const io = new Server(server, {
 //     console.log("🚪 User disconnected:", socket.id);
 //   });
 // });
+// io.on("connection", (socket) => {
+//   console.log("✅ User connected:", socket.id);
+
+//   // Join a consistent room name (alphabetically sorted)
+//   socket.on("joinRoom", ({ senderId, receiverId }) => {
+//     if (!senderId || !receiverId) return console.error("Missing sender/receiver in joinRoom");
+
+//     const roomId = [senderId, receiverId].sort().join("_");
+//     socket.join(roomId);
+//     console.log(`👥 ${senderId} joined room ${roomId}`);
+//   });
+
+//   socket.on("sendMessage", async ({ sender, receiver, message }) => {
+//     try {
+//       if (!sender || !receiver || !message) throw new Error("Missing fields");
+
+//       // Save message to DB
+//       const newMessage = await ChatService.saveMessage(sender, receiver, message);
+
+//       // Use the SAME sorted room name
+//       const roomId = [sender, receiver].sort().join("_");
+
+//       // Send to everyone in the room
+//       io.to(roomId).emit("receiveMessage", newMessage);
+
+//       console.log(`💬 Message sent in room ${roomId}`);
+//     } catch (err) {
+//       console.error("❌ Error sending message:", err.message);
+//       socket.emit("error", err.message);
+//     }
+//   });
+
+//   socket.on("disconnect", () => {
+//     console.log("🚪 User disconnected:", socket.id);
+//   });
+// });
+
+
+// // Start server
+// server.listen(PORT, () => {
+//   console.log(`🚀 Server + Socket.IO running on http://localhost:${PORT}`);
+// });
+
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
-  // Join a consistent room name (alphabetically sorted)
   socket.on("joinRoom", ({ senderId, receiverId }) => {
-    if (!senderId || !receiverId) return console.error("Missing sender/receiver in joinRoom");
-
+    if (!senderId || !receiverId) return;
     const roomId = [senderId, receiverId].sort().join("_");
     socket.join(roomId);
     console.log(`👥 ${senderId} joined room ${roomId}`);
@@ -74,21 +115,25 @@ io.on("connection", (socket) => {
 
   socket.on("sendMessage", async ({ sender, receiver, message }) => {
     try {
-      if (!sender || !receiver || !message) throw new Error("Missing fields");
-
-      // Save message to DB
       const newMessage = await ChatService.saveMessage(sender, receiver, message);
-
-      // Use the SAME sorted room name
       const roomId = [sender, receiver].sort().join("_");
-
-      // Send to everyone in the room
       io.to(roomId).emit("receiveMessage", newMessage);
-
-      console.log(`💬 Message sent in room ${roomId}`);
     } catch (err) {
       console.error("❌ Error sending message:", err.message);
-      socket.emit("error", err.message);
+    }
+  });
+
+  // ✅ Handle read receipts
+  socket.on("markAsRead", async ({ sender, receiver }) => {
+    try {
+      await ChatService.markMessagesAsRead(sender, receiver);
+
+      // Notify sender that messages were read
+      const roomId = [sender, receiver].sort().join("_");
+      io.to(roomId).emit("messagesRead", { sender, receiver });
+      console.log(`📖 Messages marked as read between ${sender} & ${receiver}`);
+    } catch (err) {
+      console.error("❌ Error marking messages as read:", err.message);
     }
   });
 
@@ -96,7 +141,6 @@ io.on("connection", (socket) => {
     console.log("🚪 User disconnected:", socket.id);
   });
 });
-
 
 // Start server
 server.listen(PORT, () => {

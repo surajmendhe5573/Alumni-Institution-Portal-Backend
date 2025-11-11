@@ -16,6 +16,16 @@ class ChatService {
       ]
     }).sort({ timestamp: 1 }); // oldest first
   }
+
+  // Mark messages as read
+async markMessagesAsRead(sender, receiver) {
+  await CHAT_MODEL.updateMany(
+    { sender, receiver, read: false },
+    { $set: { read: true } }
+  );
+  return { success: true };
+}
+
 }
 
 export default new ChatService();
